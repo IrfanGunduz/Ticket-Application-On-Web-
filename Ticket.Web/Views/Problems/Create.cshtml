@@ -1,0 +1,45 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model Ticket.Web.Models.Problems.ProblemEditVm
+
+@{
+    ViewData["Title"] = "Yeni Sorun/Hizmet";
+}
+
+<h2 class="mb-3">Yeni Sorun/Hizmet</h2>
+
+<form asp-action="Create" method="post" class="card p-3" style="max-width: 720px;">
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+    <div class="mb-3">
+        <label asp-for="Code" class="form-label"></label>
+        <input asp-for="Code" class="form-control" />
+        <span asp-validation-for="Code" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Department" class="form-label"></label>
+        <input asp-for="Department" class="form-control" placeholder="Mikro Destek / Teknik Servis ..." />
+        <span asp-validation-for="Department" class="text-danger"></span>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary" type="submit">Kaydet</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">İptal</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

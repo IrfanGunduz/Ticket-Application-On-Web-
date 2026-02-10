@@ -1,0 +1,115 @@
+﻿@using Ticket.Web.Auth
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Ticket.Web</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Ticket.Web.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="d-flex" style="min-height:100vh;">
+        <!-- Sidebar -->
+        <aside class="border-end bg-light" style="width:280px;">
+            <div class="p-3 border-bottom">
+                <div class="fw-bold">Ticket</div>
+                <div class="text-muted small">Panel</div>
+            </div>
+
+            <nav class="p-2">
+                <div class="text-uppercase small text-muted px-2 mt-2">Genel</div>
+                <a class="nav-link px-2" asp-controller="Home" asp-action="Index">
+                    🏠 Ana Sayfa
+                </a>
+
+                @if (User.HasPerm("Tickets.View"))
+                {
+                    <div class="text-uppercase small text-muted px-2 mt-3">Tickets</div>
+
+                    <a class="nav-link px-2" asp-controller="Tickets" asp-action="Index">🎫 Ticket Listesi</a>
+                }
+
+                @if (User.HasPerm("Tickets.Create"))
+                {
+                    <a class="nav-link px-2" asp-controller="Tickets" asp-action="Create">➕ Yeni Ticket</a>
+                }
+
+                @if (User.HasPerm("Customers.View"))
+                {
+                    <div class="text-uppercase small text-muted px-2 mt-3">Müşteriler</div>
+                    <a class="nav-link px-2" asp-controller="Customers" asp-action="Index">🏢 Cari Liste</a>
+                }
+
+                @if (User.HasPerm("Problems.View"))
+                {
+                    <div class="text-uppercase small text-muted px-2 mt-3">Tanımlar</div>
+                    <a class="nav-link px-2" asp-controller="Problems" asp-action="Index">🧰 Sorun/Hizmet Listesi</a>
+                }
+
+                @if (User.HasPerm("Reports.View"))
+                {
+                    <div class="text-uppercase small text-muted px-2 mt-3">Raporlar</div>
+                    <a class="nav-link px-2" asp-controller="Reports" asp-action="Index">📊 Raporlar</a>
+                }
+
+                @if (User.HasPerm("Admin.Users") || User.HasPerm("Admin.Permissions"))
+                {
+                    <div class="text-uppercase small text-muted px-2 mt-3">Admin</div>
+
+                    @if (User.HasPerm("Admin.Users"))
+                    {
+                        <a class="nav-link px-2" asp-controller="AdminUsers" asp-action="Index">👤 Kullanıcılar</a>
+                        <a class="nav-link px-2" asp-controller="AdminUserPermissions" asp-action="Index">🧩 Kullanıcı Yetkileri</a>
+                        <a class="nav-link px-2" asp-controller="AdminEmailSettings" asp-action="Index">📮 Mail Ayarları</a>
+
+                    }
+
+
+                    @if (User.HasPerm("Admin.Permissions"))
+                    {
+                        <a class="nav-link px-2" asp-controller="AdminPermissions" asp-action="Index">🔐 Rol Yetkileri</a>
+                    }
+                }
+
+                    
+                    
+                
+
+            </nav>
+        </aside>
+
+        <!-- Main -->
+        <div class="flex-grow-1">
+            <!-- Topbar -->
+            <header class="border-bottom bg-white">
+                <div class="d-flex align-items-center justify-content-between p-2 px-3">
+                    <div class="fw-semibold">@ViewData["Title"]</div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <span class="text-muted small">👋 @User.Identity.Name</span>
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                @Html.AntiForgeryToken()
+                                <button class="btn btn-sm btn-outline-secondary">Çıkış</button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </header>
+
+            <main class="p-3">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+
+</html>

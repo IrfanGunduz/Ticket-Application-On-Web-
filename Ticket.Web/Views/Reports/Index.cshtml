@@ -1,0 +1,103 @@
+﻿@model Ticket.Web.Models.Reports.ReportsIndexVm
+@{
+    ViewData["Title"] = "Raporlar";
+}
+
+<h2 class="mb-3">Raporlar</h2>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card p-3">
+            <div class="fw-semibold mb-2">En çok Ticket açılan Müşteriler (Top 10)</div>
+
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Müşteri</th>
+                        <th class="text-end">Ticket</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.TopCustomers.Count == 0)
+                    {
+                        <tr><td colspan="2" class="text-muted">Veri yok.</td></tr>
+                    }
+                    else
+                    {
+                        foreach (var r in Model.TopCustomers)
+                        {
+                            <tr>
+                                <td>@r.CustomerTitle</td>
+                                <td class="text-end">@r.TicketCount</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card p-3">
+            <div class="fw-semibold mb-2">En çok Ticket açılan Sorun/Hizmet (Top 10)</div>
+
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Sorun</th>
+                        <th>Birim</th>
+                        <th class="text-end">Ticket</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.TopProblems.Count == 0)
+                    {
+                        <tr><td colspan="3" class="text-muted">Veri yok.</td></tr>
+                    }
+                    else
+                    {
+                        foreach (var r in Model.TopProblems)
+                        {
+                            <tr>
+                                <td>@r.ProblemName</td>
+                                <td>@r.Department</td>
+                                <td class="text-end">@r.TicketCount</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card p-3">
+            <div class="fw-semibold mb-2">Aylık Ticket Sayısı (Son 12 Ay)</div>
+
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Ay</th>
+                        <th class="text-end">Ticket</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Monthly.Count == 0)
+                    {
+                        <tr><td colspan="2" class="text-muted">Veri yok.</td></tr>
+                    }
+                    else
+                    {
+                        foreach (var r in Model.Monthly)
+                        {
+                            <tr>
+                                <td>@($"{r.Year}-{r.Month:00}")</td>
+                                <td class="text-end">@r.TicketCount</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

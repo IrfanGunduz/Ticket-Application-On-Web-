@@ -1,0 +1,103 @@
+﻿@model Ticket.Web.Setup.SetupViewModel
+
+@{
+    ViewData["Title"] = "Kurulum (Setup)";
+}
+
+<h2>Kurulum (Setup)</h2>
+
+@if (TempData["Ok"] is not null)
+{
+    <div style="padding:10px;border:1px solid #0a0;background:#efe;margin-bottom:10px;">
+        <pre style="margin:0;white-space:pre-wrap;">@TempData["Ok"]</pre>
+    </div>
+}
+@if (TempData["Err"] is not null)
+{
+    <div style="padding:10px;border:1px solid #a00;background:#fee;margin-bottom:10px;">
+        <pre style="margin:0;white-space:pre-wrap;">@TempData["Err"]</pre>
+    </div>
+}
+
+
+<form id="setupForm" method="post">
+    @Html.AntiForgeryToken()
+
+    <div style="margin-bottom:10px;">
+        <label>Server</label><br />
+        <input asp-for="Server" />
+    </div>
+    <small>
+        Örnekler: <b>localhost</b> · <b>SERVERNAME\SQLEXPRESS</b> · <b>10.0.0.5</b> · <b>10.0.0.5,1433</b>
+    </small>
+
+
+    <div style="margin-bottom:10px;">
+        <label>Database</label><br />
+        <input asp-for="Database" />
+    </div>
+
+    <div style="margin-bottom:10px;">
+        <label>
+            <input asp-for="UseSqlAuth" id="useSqlAuth" />
+            SQL Authentication kullan (Windows Auth değil)
+        </label>
+    </div>
+
+    <div style="margin-bottom:10px;">
+        <label>UserName (SQL Auth)</label><br />
+        <input asp-for="UserName" id="sqlUser" />
+    </div>
+
+    <div style="margin-bottom:10px;">
+        <label>Password (SQL Auth)</label><br />
+        <input asp-for="Password" id="sqlPass" type="password" />
+    </div>
+
+    <div style="margin-bottom:10px;">
+        <label>
+            <input asp-for="Encrypt" />
+            Encrypt (zorunlu)
+        </label>
+    </div>
+
+    <div style="margin-bottom:10px;">
+        <label>
+            <input asp-for="TrustServerCertificate" />
+            Trust Server Certificate
+        </label>
+    </div>
+
+    @* <div style="margin-bottom:10px;">
+        <label>
+            <input asp-for="RememberMe" />
+            Beni hatırla (ayarları kaydet)
+        </label>
+    </div> *@
+
+    <button type="submit" formaction="/Setup/Test">Test Connection</button>
+    <button type="submit" formaction="/Setup/Install">Kur (Migrate + Seed)</button>
+</form>
+
+<script>
+    (function () {
+      const chk = document.getElementById('useSqlAuth');
+      const user = document.getElementById('sqlUser');
+      const pass = document.getElementById('sqlPass');
+
+      function sync() {
+        const enabled = chk.checked;
+        user.disabled = !enabled;
+        pass.disabled = !enabled;
+
+        
+        if (!enabled) {
+          user.value = '';
+          pass.value = '';
+        }
+      }
+
+      chk.addEventListener('change', sync);
+      sync(); 
+    })();
+</script>

@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "Erişim Reddedildi";
+}
+
+<div class="card p-3">
+    <h4 class="mb-2">Erişim reddedildi</h4>
+    <p class="text-muted mb-3">
+        Bu sayfaya erişmek için yetkin yok.
+    </p>
+
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" asp-controller="Home" asp-action="Index">Ana sayfa</a>
+        <a class="btn btn-primary" asp-controller="Account" asp-action="Login">Giriş</a>
+    </div>
+</div>

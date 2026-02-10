@@ -1,0 +1,96 @@
+﻿@model Ticket.Web.Models.Home.HomeIndexVm
+@using Ticket.Infrastructure.Entities
+
+@{
+    ViewData["Title"] = "Ana Sayfa";
+}
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <div class="card p-3 kpi-card kpi-blue">
+            <div class="text-muted">Açık Ticket</div>
+            <div class="fs-2 fw-bold">@Model.OpenCount</div>
+            <a class="btn btn-sm btn-outline-secondary mt-2" asp-controller="Tickets" asp-action="Index">Listeye git</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3 kpi-card kpi-green">
+            <div class="text-muted">Atanmamış Ticket</div>
+            <div class="fs-2 fw-bold">@Model.UnassignedCount</div>
+            <a class="btn btn-sm btn-outline-secondary mt-2"
+               asp-controller="Tickets" asp-action="Index" asp-route-assignedToUserId="">
+                Atanmamışları göster
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3 kpi-card kpi-amber">
+            <div class="text-muted">Bugün Açılan</div>
+            <div class="fs-2 fw-bold">@Model.TodayCreatedCount</div>
+        </div>
+    </div>
+</div>
+
+<div class="card p-3">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <div class="fw-semibold">Son Ticketlar</div>
+        <a asp-controller="Tickets" asp-action="Index" class="btn btn-sm btn-outline-secondary">Tümü</a>
+    </div>
+
+    @if (Model.LatestTickets.Count == 0)
+    {
+        <div class="text-muted">Henüz ticket yok.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Konu</th>
+                        <th>Durum</th>
+                        <th>Kanal</th>
+                        <th class="text-end">Tarih</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model.LatestTickets)
+                    {
+                        <tr>
+                            <td class="text-nowrap">
+                                <a asp-controller="Tickets" asp-action="Details" asp-route-id="@t.TicketItemId">@t.TicketNo</a>
+                            </td>
+                            <td>@(t.Subject ?? "-")</td>
+                            <td>@TrStatus(t.StatusValue)</td>
+                            <td>@TrChannel(t.ChannelValue)</td>
+                            <td class="text-end">@t.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@functions {
+    private static string TrStatus(TicketStatus s) => s switch
+    {
+        TicketStatus.New => "Yeni",
+        TicketStatus.InProgress => "İşlemde",
+        TicketStatus.WaitingCustomer => "Müşteri Bekleniyor",
+        TicketStatus.Closed => "Kapalı",
+        TicketStatus.Canceled => "İptal Edilen",
+        _ => s.ToString()
+    };
+
+    private static string TrChannel(TicketChannel c) => c switch
+    {
+        TicketChannel.Manual => "Manuel",
+        TicketChannel.Email => "E-posta",
+        TicketChannel.Phone => "Telefon",
+        _ => c.ToString()
+    };
+}

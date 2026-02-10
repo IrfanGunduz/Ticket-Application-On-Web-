@@ -1,0 +1,37 @@
+﻿@model Ticket.Web.Models.Admin.AdminUserCreateVm
+
+@{
+    ViewData["Title"] = "Yeni Kullanıcı";
+}
+
+<h2 class="mb-3">Yeni Kullanıcı</h2>
+
+<form method="post" class="card p-3" style="max-width:520px;">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-2">
+        <label class="form-label">Username</label>
+        <input asp-for="UserName" class="form-control" />
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-2">
+        <label class="form-label">Password</label>
+        <input asp-for="Password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsAdmin" class="form-check-input" />
+        <label class="form-check-label">Admin rolü ver</label>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary" type="submit">Oluştur</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">İptal</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

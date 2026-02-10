@@ -1,0 +1,238 @@
+﻿@using Ticket.Web.Localization
+@model Ticket.Web.Models.Tickets.TicketDetailVm
+@using Ticket.Web.Auth
+
+@{
+    ViewData["Title"] = $"Ticket: {Model.TicketNo}";
+}
+
+<div class="d-flex align-items-start justify-content-between mb-3">
+    <div>
+        <h2 class="mb-1">@Model.TicketNo</h2>
+        <div class="text-muted">@Model.Subject</div>
+    </div>
+
+    <a asp-action="Index" class="btn btn-outline-secondary">← Liste</a>
+</div>
+
+@if (TempData["Ok"] is not null)
+{
+    <div class="alert alert-success">@TempData["Ok"]</div>
+}
+@if (TempData["Err"] is not null)
+{
+    <div class="alert alert-danger">@TempData["Err"]</div>
+}
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card p-3">
+            <div class="fw-semibold mb-2">Özet</div>
+
+            <div class="mb-2"><span class="text-muted">Durum:</span> @UiText.TrStatus(Model.StatusValue)</div>
+            <div class="mb-2"><span class="text-muted">Kanal:</span> @UiText.TrChannel(Model.ChannelValue)</div>
+            <div class="mb-2"><span class="text-muted">Müşteri:</span> @(Model.CustomerTitle ?? "-")</div>
+            @if (Model.CustomerContactEmails is not null && Model.CustomerContactEmails.Count > 0)
+            {
+                <div class="mb-2">
+                    <div class="text-muted">İletişim E-postaları:</div>
+                    <ul class="mb-0 ps-3 small">
+                        @foreach (var s in Model.CustomerContactEmails)
+                        {
+                            <li>@s</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <div class="mb-2"><span class="text-muted">Sorun/Hizmet:</span> @(Model.ProblemName ?? "-")</div>
+            <div class="mb-2"><span class="text-muted">Atanan:</span> @(Model.AssignedToUserName ?? "-")</div>
+            <div class="mb-0"><span class="text-muted">Oluşturma:</span> @Model.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</div>
+        </div>
+        @if (Model.AssignedToUserId is not null)
+        {
+            <div class="mt-2">
+                <a class="btn btn-sm btn-outline-secondary"
+                   asp-controller="Tickets"
+                   asp-action="Index"
+                   asp-route-assignedToUserId="@Model.AssignedToUserId">
+                    👤 Bu kullanıcıya atanmış ticketlar
+                </a>
+            </div>
+        }
+        
+
+        @* ATAMA *@
+        @if (User.HasPerm("Tickets.Assign"))
+        {
+            <div class="card p-3 mt-3">
+                <div class="fw-semibold mb-2">Atama</div>
+
+                <form asp-action="Assign" method="post" class="d-flex gap-2">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.TicketItemId" />
+
+                    <select class="form-select" name="assignedToUserId"
+                            asp-items="Model.Assignees">
+                    </select>
+
+                    <button class="btn btn-primary" type="submit">Kaydet</button>
+                </form>
+
+                <div class="form-text">Yetki: Tickets.Assign</div>
+            </div>
+        }
+
+        @* DURUM *@
+        @if (User.HasPerm("Tickets.Edit"))
+        {
+            <div class="card p-3 mt-3">
+                <div class="fw-semibold mb-2">Durum Değiştir</div>
+
+                <form asp-action="ChangeStatus" method="post" class="d-flex gap-2">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.TicketItemId" />
+
+                    <select class="form-select" name="newStatus"
+                            asp-items="Model.StatusOptions">
+                    </select>
+
+                    <button class="btn btn-primary" type="submit">Güncelle</button>
+                </form>
+
+                <div class="form-text">Yetki: Tickets.Edit</div>
+            </div>
+        }
+
+        @* NOT EKLE *@
+        @if (User.HasPerm("Tickets.Edit"))
+        {
+            <div class="card p-3 mt-3">
+                <div class="fw-semibold mb-2">Not Ekle</div>
+
+                <form asp-action="AddNote" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.TicketItemId" />
+
+                    <textarea name="newNote" class="form-control" rows="4" placeholder="Not yaz..."></textarea>
+
+                    <button class="btn btn-primary mt-2" type="submit">Ekle</button>
+                </form>
+
+                <div class="form-text">Not maksimum 2000 karakter.</div>
+            </div>
+        }
+        @* MÜŞTERİ VE SORUN/HİZMET GÜNCELLEME *@
+        @if (User.HasPerm("Tickets.Edit"))
+        {
+            <div class="card p-3 mt-3">
+                <div class="fw-semibold mb-2">Müşteri Güncelle</div>
+
+                <form asp-action="ChangeCustomer" method="post" class="d-flex gap-2">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.TicketItemId" />
+                    <select class="form-select" name="customerId" asp-items="Model.CustomerOptions"></select>
+                    <button class="btn btn-primary" type="submit">Kaydet</button>
+                </form>
+            </div>
+
+            <div class="card p-3 mt-3">
+                <div class="fw-semibold mb-2">Sorun/Hizmet Güncelle</div>
+
+                <form asp-action="ChangeProblem" method="post" class="d-flex gap-2">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.TicketItemId" />
+                    <select class="form-select" name="problemId" asp-items="Model.ProblemOptions"></select>
+                    <button class="btn btn-primary" type="submit">Kaydet</button>
+                </form>
+            </div>
+        }
+
+    </div>
+
+    <div class="col-lg-8">
+        <!-- MESAJLAR -->
+        <div class="card p-3 mb-3">
+            <div class="fw-semibold mb-2">Mesajlar (E-posta içeriği)</div>
+            
+            <div style="max-height: 60vh; overflow:auto;">
+            @if (Model.Messages.Count == 0)
+            {
+                <div class="text-muted">Mesaj yok.</div>
+            }
+            else
+            {
+                <div class="list-group">
+                    @foreach (var m in Model.Messages.OrderByDescending(x => x.CreatedAt))
+                    {
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                    <div class="fw-semibold">@m.DirectionTr</div>
+                                <div class="text-muted small">@m.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</div>
+                            </div>
+
+                            <div class="small text-muted">
+                                @if (!string.IsNullOrWhiteSpace(m.From))
+                                {
+                                    <span><strong>Kimden:</strong> @m.From</span>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(m.To))
+                                {
+                                    <span class="ms-2"><strong>Kime:</strong> @m.To</span>
+                                }
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(m.Subject))
+                            {
+                                <div class="small"><strong>Konu:</strong> @m.Subject</div>
+                            }
+
+                            <pre class="mb-0 mt-2" style="white-space:pre-wrap;">@m.Body</pre>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+        <!-- AKTİVİTELER -->
+        <div class="card p-3">
+            <div class="fw-semibold mb-2">Aktiviteler</div>
+
+            @if (Model.Activities.Count == 0)
+            {
+                <div class="text-muted">Henüz aktivite yok.</div>
+            }
+            else
+            {
+                <div class="list-group">
+                    @foreach (var a in Model.Activities)
+                    {
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div class="fw-semibold">
+                                    @UiText.TrActivity(a.Type)
+                                    @if (!string.IsNullOrWhiteSpace(a.CreatedByUserName))
+                                    {
+                                        <span class="text-muted fw-normal">(@a.CreatedByUserName)</span>
+                                    }
+                                </div>
+                                <div class="text-muted small">@a.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</div>
+                            </div>
+                            <div>@UiText.TrActivityNote(a.Note)</div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+
+
+

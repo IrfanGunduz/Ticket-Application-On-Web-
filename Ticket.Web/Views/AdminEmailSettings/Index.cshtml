@@ -1,0 +1,185 @@
+﻿@model Ticket.Web.Models.Admin.AdminEmailSettingsVm
+@using Ticket.Infrastructure.Entities
+
+@{
+    ViewData["Title"] = "Mail Ayarları";
+}
+
+<h2 class="mb-3">Mail Ayarları</h2>
+
+@if (TempData["Ok"] is not null)
+{
+    <div class="alert alert-success">@TempData["Ok"]</div>
+}
+@if (TempData["Err"] is not null)
+{
+    <div class="alert alert-danger">@TempData["Err"]</div>
+}
+
+<form method="post" class="card p-3" style="max-width:760px;">
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+    <div class="form-check mb-3">
+        <input asp-for="Enabled" class="form-check-input" />
+        <label class="form-check-label">Email ingest aktif</label>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-md-4">
+            <label class="form-label">Poll (sn)</label>
+            <input asp-for="PollSeconds" class="form-control" />
+            <span asp-validation-for="PollSeconds" class="text-danger"></span>
+        </div>
+        <div class="col-md-8">
+            <label class="form-label">Hedef adres (To/Cc filtre)</label>
+            <input asp-for="TargetAddress" class="form-control" placeholder="destek@firma.com" />
+            <span asp-validation-for="TargetAddress" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Protokol</label>
+        <select asp-for="Protocol"
+                class="form-select"
+                asp-items="Html.GetEnumSelectList<EmailIngestProtocol>()"
+                id="protocolSelect">
+        </select>
+        <span asp-validation-for="Protocol" class="text-danger"></span>
+    </div>
+
+    <hr class="my-3" />
+
+    <div id="imapSection">
+        <h5 class="mb-2">IMAP</h5>
+
+        <div class="row g-2 mb-2">
+            <div class="col-md-6">
+                <label class="form-label">Host</label>
+                <input asp-for="ImapHost" class="form-control" />
+                <span asp-validation-for="ImapHost" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Port</label>
+                <input asp-for="ImapPort" class="form-control" />
+                <span asp-validation-for="ImapPort" class="text-danger"></span>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <div class="form-check">
+                    <input asp-for="ImapUseSsl" class="form-check-input" />
+                    <label class="form-check-label">SSL</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-2 mb-2">
+            <div class="col-md-6">
+                <label class="form-label">Username</label>
+                <input asp-for="ImapUserName" class="form-control" />
+                <span asp-validation-for="ImapUserName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Password (boş bırakılırsa değişmez)</label>
+                <input asp-for="ImapPassword" class="form-control" type="password" autocomplete="new-password" />
+            </div>
+        </div>
+
+        <div class="row g-2 mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Folder</label>
+                <input asp-for="Folder" class="form-control" />
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+                <div class="form-check">
+                    <input asp-for="MarkAsRead" class="form-check-input" />
+                    <label class="form-check-label">İşlenen maili okundu yap</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pop3Section">
+        <h5 class="mb-2">POP3</h5>
+
+        <div class="row g-2 mb-2">
+            <div class="col-md-6">
+                <label class="form-label">Host</label>
+                <input asp-for="Pop3Host" class="form-control" />
+                <span asp-validation-for="Pop3Host" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Port</label>
+                <input asp-for="Pop3Port" class="form-control" />
+                <span asp-validation-for="Pop3Port" class="text-danger"></span>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <div class="form-check">
+                    <input asp-for="Pop3UseSsl" class="form-check-input" />
+                    <label class="form-check-label">SSL</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-2 mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Username</label>
+                <input asp-for="Pop3UserName" class="form-control" />
+                <span asp-validation-for="Pop3UserName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Password (boş bırakılırsa değişmez)</label>
+                <input asp-for="Pop3Password" class="form-control" type="password" autocomplete="new-password" />
+            </div>
+        </div>
+
+        <div class="alert alert-warning py-2">
+            POP3’te “okundu yap” kavramı yoktur. Maili Outlook’ta bırakmak için DELE yapılmaz.
+        </div>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Kaydet</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (function () {
+            const protocolSelect = document.getElementById('protocolSelect');
+            const imapSection = document.getElementById('imapSection');
+            const pop3Section = document.getElementById('pop3Section');
+
+            // Enum numeric değerlerini server’dan al (varsayım yok)
+            const IMAP_VAL = "@((int)EmailIngestProtocol.Imap)";
+            const POP3_VAL = "@((int)EmailIngestProtocol.Pop3)";
+
+            function setDisabled(section, disabled) {
+                // Hidden section inputlarını disable etmek:
+                // - yanlış alanların post edilmesini engeller
+                // - client-side validation karışıklığını azaltır
+                section.querySelectorAll("input,select,textarea").forEach(el => {
+                    // protocolSelect disable olmasın (formun tamamında tek select)
+                    if (el.id === "protocolSelect") return;
+                    el.disabled = disabled;
+                });
+            }
+
+            function toggle() {
+                const val = protocolSelect.value;
+                const isImap = (val === IMAP_VAL);
+
+                imapSection.classList.toggle("d-none", !isImap);
+                pop3Section.classList.toggle("d-none", isImap);
+
+                // yalnızca görünen kısım enabled
+                setDisabled(imapSection, !isImap);
+                setDisabled(pop3Section, isImap);
+            }
+
+            protocolSelect.addEventListener('change', toggle);
+            toggle();
+        })();
+    </script>
+}
+

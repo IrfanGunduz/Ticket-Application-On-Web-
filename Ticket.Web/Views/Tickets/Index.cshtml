@@ -1,0 +1,232 @@
+﻿@using Ticket.Infrastructure.Entities
+@model Ticket.Web.Models.Tickets.TicketIndexVm
+
+@{
+    ViewData["Title"] = "Tickets";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="mb-0">Tickets</h2>
+    <a asp-controller="Tickets" asp-action="Create" class="btn btn-primary">➕ Yeni Ticket</a>
+</div>
+
+@if (TempData["Ok"] is not null)
+{
+    <div class="alert alert-success">@TempData["Ok"]</div>
+}
+
+
+
+
+<form method="get" class="card p-3 mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-lg-4">
+            <label class="form-label">Arama</label>
+            <input name="q" value="@Model.Q" class="form-control" placeholder="no / konu / müşteri / sorun" />
+        </div>
+
+        <div class="col-lg-2">
+            <label class="form-label">Durum</label>
+            <select name="status" class="form-select" asp-items="Model.StatusOptions"></select>
+        </div>
+
+        <div class="col-lg-2">
+            <label class="form-label">Kanal</label>
+            <select name="channel" class="form-select" asp-items="Model.ChannelOptions"></select>
+        </div>
+
+        <div class="col-lg-3">
+            <label class="form-label">Atanan</label>
+            <select name="assignedToUserId" class="form-select" asp-items="Model.AssigneeOptions"></select>
+        </div>
+
+        <div class="col-lg-1 d-flex gap-2">
+            <button class="btn btn-outline-secondary w-100" type="submit">Filtre</button>
+        </div>
+
+        <div class="col-12">
+            <a asp-action="Index" class="btn btn-link p-0">Filtreleri temizle</a>
+        </div>
+
+        <div class="col-lg-2">
+            <div class="form-check">
+                <input class="form-check-input"
+                       type="checkbox"
+                       id="today"
+                       name="today"
+                       value="true"
+                       @(Model.Today ? "checked" : null)
+                       onchange="this.form.submit()" />
+                <label class="form-check-label" for="today">Bugün açılanlar</label>
+
+                
+                <input type="hidden" name="today" value="false" />
+            </div>
+
+            <div class="form-check mt-1">
+                <input class="form-check-input"
+                       type="checkbox"
+                       id="autoRefresh"
+                       name="autoRefresh"
+                       value="true"
+                       @(Model.AutoRefresh ? "checked" : null)
+                       onchange="this.form.submit()" />
+                <label class="form-check-label" for="autoRefresh">Otomatik yenile</label>
+
+                
+                <input type="hidden" name="autoRefresh" value="false" />
+            </div>
+        </div>
+
+
+    </div>    
+</form>
+
+<h5 class="mt-2">Açık Ticketlar</h5>
+
+<table class="table table-hover align-middle">
+    <thead>
+        <tr>
+            <th>No</th>
+            <th>Konu</th>
+            <th>Müşteri</th>
+            <th>Sorun/Hizmet</th>
+            <th>Durum</th>
+            <th>Kanal</th>
+            <th>Atanan</th>
+            <th class="text-end">Tarih</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @if (Model.OpenTickets.Count == 0)
+        {
+            <tr><td colspan="8" class="text-muted">Kayıt yok.</td></tr>
+        }
+        else
+        {
+            foreach (var t in Model.OpenTickets)
+            {
+                <tr>
+                    <td class="text-nowrap">
+                        <a asp-action="Details" asp-route-id="@t.TicketItemId">@t.TicketNo</a>
+                    </td>
+                    <td>@t.Subject</td>
+                    <td>@(t.CustomerTitle ?? "-")</td>
+                    <td>@(t.ProblemName ?? "-")</td>
+                    <td>@TrStatus(t.StatusValue)</td>
+                    <td>@TrChannel(t.ChannelValue)</td>
+                    <td>@(t.AssignedToUserName ?? "-")</td>
+                    <td class="text-end">@t.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+
+<h5 class="mt-4">Kapalı Ticketlar</h5>
+
+<table class="table table-hover align-middle">
+    <thead>
+        <tr>
+            <th>No</th>
+            <th>Konu</th>
+            <th>Müşteri</th>
+            <th>Sorun/Hizmet</th>
+            <th>Durum</th>
+            <th>Kanal</th>
+            <th>Atanan</th>
+            <th class="text-end">Tarih</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @if (Model.ClosedTickets.Count == 0)
+        {
+            <tr><td colspan="8" class="text-muted">Kayıt yok.</td></tr>
+        }
+        else
+        {
+            foreach (var t in Model.ClosedTickets)
+            {
+                <tr class="table-secondary">
+                    <td class="text-nowrap">
+                        <a asp-action="Details" asp-route-id="@t.TicketItemId">@t.TicketNo</a>
+                    </td>
+                    <td>@t.Subject</td>
+                    <td>@(t.CustomerTitle ?? "-")</td>
+                    <td>@(t.ProblemName ?? "-")</td>
+                    <td>@TrStatus(t.StatusValue)</td>
+                    <td>@TrChannel(t.ChannelValue)</td>
+                    <td>@(t.AssignedToUserName ?? "-")</td>
+                    <td class="text-end">@t.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+
+@functions {
+    private static string TrStatus(TicketStatus s) => s switch
+    {
+        TicketStatus.New => "Yeni",
+        TicketStatus.InProgress => "İşlemde",
+        TicketStatus.WaitingCustomer => "Müşteri Bekleniyor",
+        TicketStatus.Closed => "Kapalı",
+        TicketStatus.Canceled => "İptal Edildi",
+        _ => s.ToString()
+    };
+
+    private static string TrChannel(TicketChannel c) => c switch
+    {
+        TicketChannel.Manual => "Manuel",
+        TicketChannel.Email => "E-posta",
+        TicketChannel.Phone => "Telefon",
+        _ => c.ToString()
+    };
+}
+
+@section Scripts {
+    <script>
+        (function () {
+          const auto = document.getElementById("autoRefresh");
+          if (!auto) return;
+
+          
+          if (!auto.checked) return;
+
+          let dirty = false;
+
+          document.addEventListener("input", function (e) {
+            const t = e.target;
+            if (!t) return;
+            const tag = (t.tagName || "").toUpperCase();
+            if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") dirty = true;
+          }, true);
+
+          function hasFocusOnField() {
+            const a = document.activeElement;
+            if (!a) return false;
+            const tag = (a.tagName || "").toUpperCase();
+            return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+          }
+
+          setInterval(function () {
+            if (document.hidden) return;
+            if (dirty) return;
+            if (hasFocusOnField()) return;
+
+            const u = new URL(window.location.href);
+            u.searchParams.set("_r", Date.now().toString());
+            window.location.replace(u.toString());
+          }, 15000);
+        })();
+    </script>
+}
+
+
+
+
+

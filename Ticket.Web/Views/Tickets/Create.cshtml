@@ -1,0 +1,62 @@
+﻿@model Ticket.Web.Models.Tickets.TicketCreateVm
+@using Ticket.Infrastructure.Entities
+
+@{
+    ViewData["Title"] = "Yeni Ticket";
+}
+
+<h2 class="mb-3">Yeni Ticket</h2>
+
+<div class="row">
+    <div class="col-lg-8">
+        <form asp-action="Create" method="post" class="card p-3">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+            <div class="mb-3">
+                <label asp-for="CustomerId" class="form-label"></label>
+                <select asp-for="CustomerId" asp-items="Model.Customers" class="form-select">
+                    <option value="">(Seçiniz)</option>
+                </select>
+                <span asp-validation-for="CustomerId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ProblemId" class="form-label"></label>
+                <select asp-for="ProblemId" asp-items="Model.Problems" class="form-select">
+                    <option value="">(Seçiniz)</option>
+                </select>
+                <span asp-validation-for="ProblemId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Channel" class="form-label"></label>
+                <select asp-for="Channel" class="form-select" asp-items="Model.ChannelOptions"></select>
+                <span asp-validation-for="Channel" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Subject" class="form-label"></label>
+                <input asp-for="Subject" class="form-control" />
+                <span asp-validation-for="Subject" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="InitialNote" class="form-label"></label>
+                <textarea asp-for="InitialNote" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="InitialNote" class="text-danger"></span>
+                <div class="form-text">Boş bırakılırsa “Ticket oluşturuldu.” otomatik yazılır.</div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary" type="submit">Oluştur</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">İptal</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

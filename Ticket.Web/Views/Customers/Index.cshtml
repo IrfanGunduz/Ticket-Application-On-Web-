@@ -1,0 +1,121 @@
+﻿@model Ticket.Web.Models.Customers.CustomerIndexVm
+@using Ticket.Web.Auth
+
+@{
+    ViewData["Title"] = "Cari Liste";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="mb-0">Cari Liste</h2>
+
+    <div class="d-flex gap-2">
+        <form method="get" class="d-flex gap-2 align-items-center">
+            <input name="q" value="@Model.Q" class="form-control" placeholder="Ara: kod / ünvan / tel / email" />
+
+            <div class="form-check ms-2">
+                <input class="form-check-input"
+                       type="checkbox"
+                       id="showInactive"
+                       name="showInactive"
+                       value="true"
+                       @(Model.ShowInactive ? "checked" : null)
+                       onchange="this.form.submit()" />
+                <label class="form-check-label" for="showInactive">Pasifleri göster</label>
+            </div>
+
+
+            <button class="btn btn-outline-secondary" type="submit">Ara</button>
+        </form>
+
+
+        @if (User.HasPerm("Customers.Edit"))
+        {
+            <a asp-action="Create" class="btn btn-primary">➕ Yeni</a>
+        }
+    </div>
+</div>
+
+@if (TempData["Ok"] is not null)
+{
+    <div class="alert alert-success">@TempData["Ok"]</div>
+}
+
+<table class="table table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Kod</th>
+            <th>Ünvan</th>
+            <th>Telefon</th>
+            <th>E-posta</th>
+            <th class="text-end">İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Items.Count == 0)
+        {
+            <tr>
+                <td colspan="5" class="text-muted">Kayıt yok.</td>
+            </tr>
+        }
+        else
+        {
+            foreach (var c in Model.Items)
+            {
+                <tr class="@(c.IsActive ? "" : "table-secondary")">
+                    <td class="text-nowrap">
+                        @c.Code
+                    </td>
+
+                    <td>
+                        @c.Title
+                        @if (!c.IsActive)
+                        {
+                            <span class="badge text-bg-secondary ms-2">Pasif</span>
+                        }
+                    </td>
+
+                    <td>@(c.Phone ?? "-")</td>
+                    <td>@(c.Email ?? "-")</td>
+
+                    <td class="text-end">
+                        @if (User.HasPerm("Customers.Edit"))
+                        {
+                            <a class="btn btn-sm btn-outline-secondary"
+                               asp-action="Edit"
+                               asp-route-id="@c.CustomerId">Düzenle</a>
+
+                            <a class="btn btn-sm btn-outline-secondary ms-1"
+                               asp-action="Contacts"
+                               asp-route-id="@c.CustomerId">İletişimler</a>
+
+
+                            @if (c.IsActive)
+                            {
+                                <form asp-action="Deactivate" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@c.CustomerId" />
+                                    <button class="btn btn-sm btn-outline-danger ms-1"
+                                            onclick="return confirm('Bu müşteriyi pasife almak istiyor musun?');">
+                                        Pasife al
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-action="Activate" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@c.CustomerId" />
+                                    <button class="btn btn-sm btn-outline-success ms-1"
+                                            onclick="return confirm('Bu müşteriyi tekrar aktif yapmak istiyor musun?');">
+                                        Aktif et
+                                    </button>
+                                </form>
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+
+        }
+    </tbody>
+</table>

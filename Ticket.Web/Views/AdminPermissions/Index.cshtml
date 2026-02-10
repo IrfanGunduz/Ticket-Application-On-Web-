@@ -1,0 +1,92 @@
+﻿@model Ticket.Web.Models.Admin.AdminPermissionsVm
+
+@{
+    ViewData["Title"] = "Yetkiler";
+}
+
+@if (Model.IsRoleLocked)
+{
+    <div class="alert alert-warning">@Model.LockReason</div>
+}
+@if (TempData["Err"] is not null)
+{
+    <div class="alert alert-danger">@TempData["Err"]</div>
+}
+
+
+
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="mb-0">Yetki Yönetimi</h2>
+</div>
+
+@if (TempData["Ok"] is not null)
+{
+    <div class="alert alert-success">@TempData["Ok"]</div>
+}
+
+@if (Model.Roles.Count == 0)
+{
+    <div class="text-muted">Rol yok.</div>
+    return;
+}
+
+<form method="get" class="card p-3 mb-3">
+    <label class="form-label">Rol</label>
+    <select class="form-select" name="roleId" onchange="this.form.submit()">
+        @foreach (var r in Model.Roles)
+        {
+            <option value="@r.RoleId" selected="@(r.RoleId == Model.SelectedRoleId)">
+                @r.Name
+            </option>
+        }
+    </select>
+</form>
+
+<form asp-action="Save" method="post" class="card p-3">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="selectedRoleId" value="@Model.SelectedRoleId" />
+
+    <div class="fw-semibold mb-2">Rol: @Model.SelectedRoleName</div>
+
+    <div class="table-responsive">
+        <table class="table table-sm align-middle">
+            <thead>
+                <tr>
+                    <th style="width:60px;">Seç</th>
+                    <th>Ad</th>
+
+                    
+                    <th class="text-end" style="width:260px; padding-right:24px;">Key</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var p in Model.Permissions)
+                {
+                    <tr>
+                        <td style="width:60px;">
+                            <input class="form-check-input" type="checkbox"
+                                   name="keys" value="@p.Key" checked="@p.Assigned" />
+                        </td>
+
+                        
+                        <td class="text-nowrap">@p.Name</td>
+
+                        
+                        <td class="text-end" style="padding-right:24px;">
+                            <span class="d-inline-block" style="min-width:240px;">
+                                <code class="px-2 py-1 rounded bg-light text-secondary">@p.Key</code>
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary" type="submit" @(Model.IsRoleLocked ? "disabled" : "")>Kaydet</button>
+    </div>
+</form>

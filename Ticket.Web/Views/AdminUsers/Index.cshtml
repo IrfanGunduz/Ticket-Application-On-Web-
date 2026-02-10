@@ -1,0 +1,74 @@
+﻿@model Ticket.Web.Models.Admin.AdminUsersIndexVm
+
+@{
+    ViewData["Title"] = "Kullanıcılar";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="mb-0">Kullanıcılar</h2>
+    <a class="btn btn-primary" asp-action="Create">➕ Yeni Kullanıcı</a>
+</div>
+
+@if (TempData["Ok"] is not null)
+{
+    <div class="alert alert-success">@TempData["Ok"]</div>
+}
+@if (TempData["Err"] is not null)
+{
+    <div class="alert alert-danger">@TempData["Err"]</div>
+}
+
+<table class="table table-hover align-middle">
+    <thead>
+        <tr>
+            <th style="width:360px;">Kullanıcı Adı</th>
+            <th>Roller</th>
+            <th class="text-end">İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Users.Count == 0)
+        {
+            <tr><td colspan="3" class="text-muted">Kayıt yok.</td></tr>
+        }
+        else
+        {
+            foreach (var u in Model.Users)
+            {
+                <tr>
+                    <td>
+                        <form asp-action="ChangeUserName" method="post" class="d-flex gap-2 align-items-center">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@u.Id" />
+
+                            <input name="newUserName"
+                                   value="@u.UserName"
+                                   class="form-control form-control-sm"
+                                   style="max-width:220px;" />
+
+                            <button class="btn btn-sm btn-outline-primary" type="submit">Güncelle</button>
+                        </form>
+                    </td>
+
+                    <td>@u.Roles</td>
+
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-secondary"
+                           asp-action="ResetPassword"
+                           asp-route-id="@u.Id">Şifre</a>
+
+                        <form asp-action="Delete" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@u.Id" />
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Silinsin mi?');">
+                                Sil
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+

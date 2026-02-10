@@ -1,0 +1,112 @@
+﻿@model Ticket.Web.Models.Admin.AdminUserPermissionsVm
+
+@{
+    ViewData["Title"] = "Kullanıcı Yetkileri";
+}
+
+<h2 class="mb-3">Kullanıcı Bazlı Yetkiler</h2>
+
+@if (TempData["Ok"] is not null)
+{
+    <div class="alert alert-success">@TempData["Ok"]</div>
+}
+
+@if (Model.Users.Count == 0)
+{
+    <div class="text-muted">Kullanıcı yok.</div>
+    return;
+}
+
+<form method="get" class="card p-3 mb-3">
+    <label class="form-label">Kullanıcı</label>
+    <select class="form-select" name="userId" onchange="this.form.submit()">
+        @foreach (var u in Model.Users)
+        {
+            <option value="@u.UserId" selected="@(u.UserId == Model.SelectedUserId)">
+                @u.UserName
+            </option>
+        }
+    </select>
+</form>
+
+<form asp-action="Save" method="post" class="card p-3">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="selectedUserId" value="@Model.SelectedUserId" />
+
+    <div class="fw-semibold mb-2">Kullanıcı: @Model.SelectedUserName</div>
+
+    <div class="table-responsive">
+        <table class="table table-sm align-middle">
+            <thead>
+                <tr>
+                    <th style="width:160px;">Seç</th>
+                    <th>Ad</th>
+
+                    
+                    <th class="text-end" style="width:260px; padding-right:24px;">Key</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var p in Model.Permissions)
+                {
+                    <tr>
+                        <td style="width:160px;">
+                            <div class="d-flex gap-3">
+                                <label class="form-check-label">
+                                    <input class="form-check-input grant" type="checkbox"
+                                           name="grantKeys" value="@p.Key" checked="@p.Assigned" />
+                                    İzin ver
+                                </label>
+
+                                <label class="form-check-label">
+                                    <input class="form-check-input deny" type="checkbox"
+                                           name="denyKeys" value="@p.Key" checked="@p.Denied" disabled="@p.Locked" />
+                                    Reddet
+                                    @if (p.Locked)
+                                    {
+                                        <span class="text-muted">(kilitli)</span>
+                                    }
+                                </label>
+                            </div>
+                        </td>
+
+                        
+                        <td>@p.Name</td>
+
+                        
+                        <td class="text-end" style="padding-right:24px;">
+                            <span class="d-inline-block" style="min-width:240px;">
+                                <code class="px-2 py-1 rounded bg-light text-secondary">@p.Key</code>
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+
+    <button class="btn btn-primary" type="submit">Kaydet</button>
+
+    <div class="form-text mt-2">
+        Not: Rol yetkileri + burada seçtiklerin birleşir. (Admin rolü ayrıca her şeye yetkili.)
+    </div>
+</form>
+@section Scripts {
+    <script>
+        document.addEventListener("change", function (e) {
+            const el = e.target;
+            if (!(el instanceof HTMLInputElement)) return;
+
+            if (el.classList.contains("grant") && el.checked) {
+                const deny = el.closest("tr")?.querySelector("input.deny");
+                if (deny) deny.checked = false;
+            }
+            if (el.classList.contains("deny") && el.checked) {
+                const grant = el.closest("tr")?.querySelector("input.grant");
+                if (grant) grant.checked = false;
+            }
+        });
+    </script>
+}

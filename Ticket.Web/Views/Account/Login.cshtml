@@ -1,0 +1,78 @@
+﻿@model Ticket.Web.Models.Account.LoginViewModel
+@{
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+    ViewData["Title"] = "Giriş";
+}
+
+<div class="auth-bg">
+    <div class="container">
+        <div class="row justify-content-center align-items-center" style="min-height:100vh;">
+            <div class="col-12 col-md-7 col-lg-5">
+                <div class="card shadow-sm border-0 auth-card">
+                    <div class="card-body p-4 p-md-5">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <div class="auth-logo">🎫</div>
+                            <div>
+                                <div class="h4 mb-0">Ticket</div>
+                                <div class="text-muted small">Yönetim Paneli</div>
+                            </div>
+                        </div>
+
+                        <div class="text-muted mb-4">
+                            Kullanıcı adın ve şifrenle giriş yap.
+                        </div>
+
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger">
+                                Giriş başarısız. Bilgilerini kontrol et.
+                            </div>
+                        }
+
+                        <form asp-action="Login" method="post" class="vstack gap-3">
+                            @Html.AntiForgeryToken()
+
+                            <div>
+                                <label class="form-label">Kullanıcı Adı</label>
+                                <input asp-for="UserName" class="form-control form-control-lg" autocomplete="username" />
+                                <span asp-validation-for="UserName" class="text-danger small"></span>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Şifre</label>
+                                <input asp-for="Password" class="form-control form-control-lg" type="password" autocomplete="current-password" />
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="form-check">
+                                    <input asp-for="RememberMe" class="form-check-input" />
+                                    <label class="form-check-label" asp-for="RememberMe">Beni hatırla</label>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary btn-lg w-100">Giriş Yap</button>
+                        </form>
+
+                        <div class="text-muted small mt-4">
+                            Sorun mu var? Admin ile iletişime geç.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center text-muted small mt-3">
+                    © @DateTime.Now.Year Ticket
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+
+
+
+

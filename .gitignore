@@ -1,0 +1,108 @@
+############################################
+# Visual Studio / .NET
+############################################
+
+## Build folders
+bin/
+obj/
+Debug/
+Release/
+publish/
+artifacts/
+
+## VS cache
+.vs/
+*.user
+*.suo
+*.rsuser
+*.userosscache
+*.sln.docstates
+
+## Rider / ReSharper
+_ReSharper*/
+*.DotSettings.user
+
+############################################
+# ASP.NET Core
+############################################
+
+## Logs
+logs/
+*.log
+
+## Runtime generated
+wwwroot/uploads/
+wwwroot/temp/
+
+## Environment specific configs
+appsettings.Development.json
+appsettings.*.local.json
+
+## User Secrets
+secrets.json
+
+############################################
+# Entity Framework
+############################################
+
+## EF Migrations snapshot backups (optional)
+*.Designer.cs
+*.bak
+
+############################################
+# Database
+############################################
+
+*.mdf
+*.ldf
+*.ndf
+*.db
+*.sqlite
+*.sqlite3
+
+############################################
+# Node (if using frontend tooling)
+############################################
+
+node_modules/
+dist/
+build/
+
+############################################
+# Test
+############################################
+
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+############################################
+# OS
+############################################
+
+.DS_Store
+Thumbs.db
+
+############################################
+# Publish Profiles (Sensitive)
+############################################
+
+*.pubxml
+*.publishproj
+PublishScripts/
+
+############################################
+# Package Managers
+############################################
+
+packages/
+*.nupkg
+*.snupkg
+
+############################################
+# Docker (if used)
+############################################
+
+docker-compose.override.yml
+.env

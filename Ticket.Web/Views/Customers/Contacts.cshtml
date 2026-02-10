@@ -1,0 +1,88 @@
+﻿@model Ticket.Web.Models.Customers.CustomerContactsVm
+
+@{
+    ViewData["Title"] = "Müşteri İletişimleri";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+        <h2 class="mb-0">İletişimler</h2>
+        <div class="text-muted">@Model.CustomerTitle</div>
+    </div>
+    <a class="btn btn-outline-secondary" asp-action="Index">← Cari Liste</a>
+</div>
+
+@if (TempData["Ok"] is not null)
+{
+    <div class="alert alert-success">@TempData["Ok"]</div>
+}
+@if (TempData["Err"] is not null)
+{
+    <div class="alert alert-danger">@TempData["Err"]</div>
+}
+
+<div class="card p-3 mb-3" style="max-width:900px;">
+    <div class="fw-semibold mb-2">Yeni İletişim Ekle</div>
+
+    <form asp-action="AddContact" method="post" class="row g-2">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="customerId" value="@Model.CustomerId" />
+
+        <div class="col-md-4">
+            <input name="fullName" class="form-control" placeholder="Ad Soyad" />
+        </div>
+        <div class="col-md-2">
+            <input name="phone" class="form-control" placeholder="Telefon" />
+        </div>
+        <div class="col-md-2">
+            <input name="mobile" class="form-control" placeholder="Cep" />
+        </div>
+        <div class="col-md-3">
+            <input name="email" class="form-control" placeholder="E-posta" />
+        </div>
+        <div class="col-md-1">
+            <button class="btn btn-primary w-100" type="submit">Ekle</button>
+        </div>
+    </form>
+</div>
+
+<table class="table table-hover align-middle" style="max-width:900px;">
+    <thead>
+        <tr>
+            <th>Ad Soyad</th>
+            <th>Telefon</th>
+            <th>Cep</th>
+            <th>E-posta</th>
+            <th class="text-end">İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Items.Count == 0)
+        {
+            <tr><td colspan="5" class="text-muted">Kayıt yok.</td></tr>
+        }
+        else
+        {
+            foreach (var x in Model.Items)
+            {
+                <tr>
+                    <td>@x.FullName</td>
+                    <td>@(x.Phone ?? "-")</td>
+                    <td>@(x.Mobile ?? "-")</td>
+                    <td>@(x.Email ?? "-")</td>
+                    <td class="text-end">
+                        <form asp-action="DeleteContact" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="customerId" value="@Model.CustomerId" />
+                            <input type="hidden" name="contactId" value="@x.CustomerContactId" />
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Bu iletişim silinsin mi?');">
+                                Sil
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
