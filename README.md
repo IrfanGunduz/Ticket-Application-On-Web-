@@ -1,6 +1,6 @@
 # Ticket Application
 
-> !!!!**VIBE CODED PROJECT**!!!!! !!!!**VIBE CODED PROJECT**!!!!!<br>
+> !!!!**AI ASSISTED PROJECT**!!!!! !!!!**AI ASSISTED PROJECT**!!!!!<br>
 > Ticket application for company usage. Turkish language only for now!
 
 ASP.NET Core MVC ile geliştirilmiş, SQL Server tabanlı bir destek talebi yönetim uygulamasıdır. Müşteri ve sorun/hizmet kayıtlarını merkezi olarak yönetir; taleplerin açılmasını, personele atanmasını, durum değişikliklerini ve işlem geçmişini takip eder. IMAP veya POP3 üzerinden gelen e-postaları otomatik olarak talebe dönüştürebilir.
